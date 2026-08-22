@@ -1,0 +1,8 @@
+# Nethrion XP Machine
+# 5 diamonds from zero awards 1,395 raw XP in total, which reaches level 30.
+# 1 diamond therefore awards exactly 279 raw XP.
+experience-per-diamond: 279
+
+# Maximum time after a player inserts a diamond into the machine's hopper
+# during which that deposit may be attributed to that player.
+depositor-memory-seconds: 20

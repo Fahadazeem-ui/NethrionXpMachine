@@ -1,0 +1,7 @@
+name: NethrionXpMachine
+version: 1.0.0
+main: com.nethrion.xpmachine.NethrionXpMachinePlugin
+api-version: '1.21'
+author: Nethrion
+
+description: A compact vanilla-style diamond to raw XP exchange machine.
