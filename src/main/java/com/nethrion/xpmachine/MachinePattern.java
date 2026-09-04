@@ -14,7 +14,10 @@ final class MachinePattern {
     MachinePattern() {
         List<Entry> e = new ArrayList<>();
         Material d = Material.POLISHED_DEEPSLATE;
-        Material c = Material.COPPER_BLOCK;
+        // Lodestone: smooth grey stone-metal look that blends with polished
+        // deepslate, and (unlike copper) never oxidizes/weathers, so the
+        // pattern check never silently breaks over time.
+        Material c = Material.LODESTONE;
 
         // Layer 0
         e.add(new Entry(0, 0, 0, d));
