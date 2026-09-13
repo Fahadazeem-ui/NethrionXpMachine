@@ -30,14 +30,14 @@ final class MachineListener implements Listener {
 
     private final JavaPlugin plugin;
     private final MachinePattern pattern = new MachinePattern();
-    private final int xpPerDiamond;
+    private final int xpPerCopperPair;
     private final long depositorMemoryMillis;
 
     private final Map<MachineKey, DepositorMemory> depositors = new HashMap<>();
 
-    MachineListener(JavaPlugin plugin, int xpPerDiamond, long depositorMemorySeconds) {
+    MachineListener(JavaPlugin plugin, int xpPerCopperPair, long depositorMemorySeconds) {
         this.plugin = plugin;
-        this.xpPerDiamond = Math.max(1, xpPerDiamond);
+        this.xpPerCopperPair = Math.max(1, xpPerCopperPair);
         this.depositorMemoryMillis = Math.max(1L, depositorMemorySeconds) * 1000L;
     }
 
@@ -72,10 +72,10 @@ final class MachineListener implements Listener {
             return;
         }
 
-        boolean insertingDiamond = isDiamond(event.getCursor())
-                || (event.isShiftClick() && isDiamond(event.getCurrentItem()));
+        boolean insertingCopper = isCopper(event.getCursor())
+                || (event.isShiftClick() && isCopper(event.getCurrentItem()));
 
-        if (insertingDiamond) {
+        if (insertingCopper) {
             depositors.put(machine, new DepositorMemory(player.getUniqueId(), System.currentTimeMillis()));
         }
     }
@@ -91,7 +91,7 @@ final class MachineListener implements Listener {
             return;
         }
 
-        if (!isDiamond(event.getOldCursor())) {
+        if (!isCopper(event.getOldCursor())) {
             return;
         }
 
@@ -102,8 +102,8 @@ final class MachineListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onDiamondMoved(InventoryMoveItemEvent event) {
-        if (!isDiamond(event.getItem())) {
+    public void onCopperMoved(InventoryMoveItemEvent event) {
+        if (!isCopper(event.getItem())) {
             return;
         }
 
@@ -121,11 +121,11 @@ final class MachineListener implements Listener {
         // Let the hopper perform its normal vanilla transfer first.
         // Then consume exactly the transferred amount from the machine's barrel.
         plugin.getServer().getScheduler().runTask(plugin, () -> {
-            processTransferredDiamonds(machine, barrel, movedAmount);
+            processTransferredCopper(machine, barrel, movedAmount);
         });
     }
 
-    private void processTransferredDiamonds(MachineKey machine, Barrel barrel, int maximumToProcess) {
+    private void processTransferredCopper(MachineKey machine, Barrel barrel, int maximumToProcess) {
         DepositorMemory memory = depositors.get(machine);
         if (memory == null) {
             return;
@@ -143,14 +143,19 @@ final class MachineListener implements Listener {
         }
 
         Inventory inventory = barrel.getInventory();
-        int available = countDiamonds(inventory);
+        int available = countCopper(inventory);
         int amount = Math.min(maximumToProcess, available);
-        if (amount <= 0) {
+
+        // Copper only pays out in pairs: 2 copper ingots = the XP that 1 diamond
+        // used to award. Any odd leftover ingot stays in the barrel until its pair arrives.
+        int usable = amount - (amount % 2);
+        if (usable <= 0) {
             return;
         }
 
-        removeDiamonds(inventory, amount);
-        giveExperienceOrbs(player, amount * xpPerDiamond, barrel.getLocation().add(0.5, 0.5, 0.5));
+        int pairs = usable / 2;
+        removeCopper(inventory, usable);
+        giveExperienceOrbs(player, pairs * xpPerCopperPair, barrel.getLocation().add(0.5, 0.5, 0.5));
     }
 
     private void giveExperienceOrbs(Player player, int amount, Location source) {
@@ -206,23 +211,23 @@ final class MachineListener implements Listener {
         orb.setVelocity(velocity);
     }
 
-    private int countDiamonds(Inventory inventory) {
+    private int countCopper(Inventory inventory) {
         int total = 0;
         for (ItemStack item : inventory.getContents()) {
-            if (isDiamond(item)) {
+            if (isCopper(item)) {
                 total += item.getAmount();
             }
         }
         return total;
     }
 
-    private void removeDiamonds(Inventory inventory, int amount) {
+    private void removeCopper(Inventory inventory, int amount) {
         int remaining = amount;
         ItemStack[] contents = inventory.getContents();
 
         for (int i = 0; i < contents.length && remaining > 0; i++) {
             ItemStack item = contents[i];
-            if (!isDiamond(item)) {
+            if (!isCopper(item)) {
                 continue;
             }
 
@@ -240,8 +245,8 @@ final class MachineListener implements Listener {
         inventory.setContents(contents);
     }
 
-    private boolean isDiamond(ItemStack item) {
-        return item != null && item.getType() == Material.DIAMOND && item.getAmount() > 0;
+    private boolean isCopper(ItemStack item) {
+        return item != null && item.getType() == Material.COPPER_INGOT && item.getAmount() > 0;
     }
 
     private MachineKey findMachine(Block anchor) {

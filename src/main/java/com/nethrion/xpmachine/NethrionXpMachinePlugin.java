@@ -10,7 +10,7 @@ public final class NethrionXpMachinePlugin extends JavaPlugin {
 
         MachineListener listener = new MachineListener(
                 this,
-                getConfig().getInt("experience-per-diamond", 279),
+                getConfig().getInt("experience-per-copper-pair", 279),
                 getConfig().getLong("depositor-memory-seconds", 20L)
         );
 
