@@ -1,7 +1,8 @@
 # Nethrion XP Machine
-# 10 copper ingots from zero awards 1,395 raw XP in total, which reaches level 30.
-# 2 copper ingots therefore award exactly 279 raw XP (an odd leftover ingot waits for its pair).
-experience-per-copper-pair: 279
+# Previously: 1 diamond = 279 raw XP.
+# Now: currency is copper ingots, and the price is double -> 1 copper ingot = 139.5 raw XP.
+# (So 2 copper ingots still give the same 279 XP that 1 diamond used to give.)
+experience-per-copper: 139.5
 
 # Maximum time after a player inserts copper into the machine's hopper
 # during which that deposit may be attributed to that player.

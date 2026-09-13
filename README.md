@@ -22,10 +22,10 @@ No mob capture or mob processing is used.
 2. Open the machine's hopper.
 3. Put copper ingots into the hopper.
 4. Vanilla hopper transfer moves copper into the barrel.
-5. The plugin consumes the transferred copper in pairs.
+5. The plugin consumes the transferred copper ingot(s) immediately.
 6. The player receives the payout as real Minecraft experience orbs that visibly fly into them.
 
-Every 2 copper ingots grant exactly 279 raw XP (the same rate 1 diamond used to give). That is 1,395 raw XP for ten copper ingots, which corresponds to Minecraft level 30 from level 0. An odd leftover ingot stays in the barrel until its pair arrives.
+Each single copper ingot grants exactly 139.5 raw XP — double the price of the old diamond (1 diamond used to give 279 XP, so 2 copper ingots now give that same 279 XP total). There is no pairing requirement: even a single copper ingot pays out immediately.
 
 Copper placed directly into the barrel is not processed unless it arrives through a matching hopper transfer.
 

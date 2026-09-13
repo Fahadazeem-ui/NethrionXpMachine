@@ -30,14 +30,14 @@ final class MachineListener implements Listener {
 
     private final JavaPlugin plugin;
     private final MachinePattern pattern = new MachinePattern();
-    private final int xpPerCopperPair;
+    private final double xpPerCopper;
     private final long depositorMemoryMillis;
 
     private final Map<MachineKey, DepositorMemory> depositors = new HashMap<>();
 
-    MachineListener(JavaPlugin plugin, int xpPerCopperPair, long depositorMemorySeconds) {
+    MachineListener(JavaPlugin plugin, double xpPerCopper, long depositorMemorySeconds) {
         this.plugin = plugin;
-        this.xpPerCopperPair = Math.max(1, xpPerCopperPair);
+        this.xpPerCopper = Math.max(0.01, xpPerCopper);
         this.depositorMemoryMillis = Math.max(1L, depositorMemorySeconds) * 1000L;
     }
 
@@ -118,6 +118,7 @@ final class MachineListener implements Listener {
 
         int movedAmount = Math.max(1, event.getItem().getAmount());
 
+        // Each copper ingot is worth half of what a diamond used to be worth (double price).
         // Let the hopper perform its normal vanilla transfer first.
         // Then consume exactly the transferred amount from the machine's barrel.
         plugin.getServer().getScheduler().runTask(plugin, () -> {
@@ -145,17 +146,13 @@ final class MachineListener implements Listener {
         Inventory inventory = barrel.getInventory();
         int available = countCopper(inventory);
         int amount = Math.min(maximumToProcess, available);
-
-        // Copper only pays out in pairs: 2 copper ingots = the XP that 1 diamond
-        // used to award. Any odd leftover ingot stays in the barrel until its pair arrives.
-        int usable = amount - (amount % 2);
-        if (usable <= 0) {
+        if (amount <= 0) {
             return;
         }
 
-        int pairs = usable / 2;
-        removeCopper(inventory, usable);
-        giveExperienceOrbs(player, pairs * xpPerCopperPair, barrel.getLocation().add(0.5, 0.5, 0.5));
+        removeCopper(inventory, amount);
+        int xp = (int) Math.round(amount * xpPerCopper);
+        giveExperienceOrbs(player, xp, barrel.getLocation().add(0.5, 0.5, 0.5));
     }
 
     private void giveExperienceOrbs(Player player, int amount, Location source) {
